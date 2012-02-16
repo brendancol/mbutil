@@ -208,10 +208,22 @@ def mbtiles_to_disk(mbtiles_file, directory_path, **kwargs):
         if kwargs.get('scheme') == 'osm':
           y = flip_y(z,y)
           print 'flipping'
-        tile_dir = os.path.join(base_path, str(z), str(x))
+          ZYX=False
+        if kwargs.get('scheme') == 'weogeo':
+          y = flip_y(z,y)
+          ZYX=True
+          print 'flipping and setting order to ZYX'
+        # 
+        if ZYX:
+            tile_dir = os.path.join(base_path, str(z), str(y))
+            tile = os.path.join(tile_dir,'%s.%s' % (x,metadata.get('format', 'png')))
+        else:
+            tile_dir = os.path.join(base_path, str(z), str(x))
+            tile = os.path.join(tile_dir,'%s.%s' % (y,metadata.get('format', 'png')))
+            
         if not os.path.isdir(tile_dir):
             os.makedirs(tile_dir)
-        tile = os.path.join(tile_dir,'%s.%s' % (y,metadata.get('format', 'png')))
+        
         f = open(tile, 'wb')
         f.write(t[3])
         f.close()

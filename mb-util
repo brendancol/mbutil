@@ -6,16 +6,16 @@
 # Licensed under BSD
 import logging
 import os, sys
-from optparse import OptionParser
-
+#from optparse import OptionParser
+import optparse
 from mbutil import mbtiles_to_disk, disk_to_mbtiles
 
 
 if __name__ == '__main__':
 
     logging.basicConfig(level=logging.DEBUG)
-
-    parser = OptionParser(usage="""usage: %prog [options] input output
+    
+    parser = optparse.OptionParser(usage="""usage: %prog [options] input output
     
     Examples:
     
@@ -23,7 +23,12 @@ if __name__ == '__main__':
     $ mb-util world.mbtiles tiles # tiles must not alredy exist
     
     Import a directory of tiles into an mbtiles file:
-    $ mb-util tiles world.mbtiles # mbtiles file must not already exist""")
+    $ mb-util tiles world.mbtiles # mbtiles file must not already exist
+    
+    Scheme Options are:
+     "tms"    z/x/y (Default)
+     "osm"    z/x/y with flipped y coordinate
+     "weogeo" z/y/x with flipped y coordinate""")
     
     # todo - add support for compression
     #parser.add_option('-w', '--window', dest='window',
@@ -32,7 +37,7 @@ if __name__ == '__main__':
     #    default=2000)
 
     parser.add_option('--scheme', dest='scheme',
-        help='Tiling scheme for exporting tiles. Default is "tms" (z/x/y), other option is "osm" which is also z/x/y but uses a flipped y coordinate',
+        help='Tiling scheme for exporting tiles. (Default=tms)',
         type='string',
         default='tms')
 
