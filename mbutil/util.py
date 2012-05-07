@@ -5,7 +5,7 @@
 #
 # (c) Development Seed 2011
 # Licensed under BSD
-
+import tarfile
 import sqlite3, uuid, sys, logging, time, os, json, zlib, glob, shutil
 
 logger = logging.getLogger(__name__)
@@ -185,10 +185,17 @@ def mbtiles_to_disk(mbtiles_file, directory_path, **kwargs):
     done = 0
     msg ='' 
     service_version = metadata.get('version', '1.0.0')
-    base_path = os.path.join(directory_path,
+    if kwargs.get('scheme') != 'weogeo':
+        base_path = os.path.join(directory_path,
                                 service_version,
                                 metadata.get('name', 'layer')
                             )
+    elif kwargs.get('scheme') == 'weogeo':
+        base_path = os.path.join(directory_path,"xyz")
+    else:
+        print "Unknown scheme"
+        sys.exit()
+        
     if not os.path.isdir(base_path):
         os.makedirs(base_path)
 
@@ -232,6 +239,15 @@ def mbtiles_to_disk(mbtiles_file, directory_path, **kwargs):
         logger.info('%s / %s tiles exported' % (done, count))
         t = tiles.fetchone()
 
+    if kwargs.get('scheme') == 'weogeo':
+        head,tail = os.path.split(mbtiles_file)
+        outfilename = os.path.join(head, "xyz.tar.gz")
+        if os.path.exists(outfilename): os.remove(outfilename)
+        tz = tarfile.open(outfilename,'w|gz')  # Open an gzip compressed stream for writing.
+        tz.add(base_path, arcname='')
+        tz.close()   
+
+        
     # grids
     done = 0
     msg =''
