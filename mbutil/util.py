@@ -185,13 +185,15 @@ def mbtiles_to_disk(mbtiles_file, directory_path, **kwargs):
     done = 0
     msg ='' 
     service_version = metadata.get('version', '1.0.0')
-    if kwargs.get('scheme') != 'weogeo':
+    if (kwargs.get('scheme') != 'weogeo') and (kwargs.get('scheme') != 'arcgis'):
         base_path = os.path.join(directory_path,
                                 service_version,
                                 metadata.get('name', 'layer')
                             )
     elif kwargs.get('scheme') == 'weogeo':
         base_path = os.path.join(directory_path,"xyz")
+    elif kwargs.get('scheme') == 'arcgis':
+        base_path = os.path.join(directory_path,"_alllayers")
     else:
         print "Unknown scheme"
         sys.exit()
@@ -216,14 +218,27 @@ def mbtiles_to_disk(mbtiles_file, directory_path, **kwargs):
           y = flip_y(z,y)
           print 'flipping'
           ZYX=False
+          ARC=False
         if kwargs.get('scheme') == 'weogeo':
           y = flip_y(z,y)
           ZYX=True
+          ARC=False
+          print 'flipping and setting order to ZYX'
+        if kwargs.get('scheme') == 'arcgis':
+          y = flip_y(z,y)
+          ZYX=False
+          ARC=True
           print 'flipping and setting order to ZYX'
         # 
         if ZYX:
             tile_dir = os.path.join(base_path, str(z), str(y))
             tile = os.path.join(tile_dir,'%s.%s' % (x,metadata.get('format', 'png')))
+        elif ARC:
+            level = "L" + str(z).zfill(2)
+            row = "R" + hex(y).replace("0x", "").zfill(8)
+            col = "C" + hex(x).replace("0x", "").zfill(8)
+            tile_dir = os.path.join(base_path, level, row)
+            tile = os.path.join(tile_dir,'%s.%s' % (col,metadata.get('format', 'png')))
         else:
             tile_dir = os.path.join(base_path, str(z), str(x))
             tile = os.path.join(tile_dir,'%s.%s' % (y,metadata.get('format', 'png')))
@@ -284,3 +299,4 @@ def mbtiles_to_disk(mbtiles_file, directory_path, **kwargs):
         for c in msg: sys.stdout.write(chr(8))
         logger.info('%s / %s grids exported' % (done, count))
         g = grids.fetchone()
+

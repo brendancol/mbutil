@@ -28,7 +28,8 @@ if __name__ == '__main__':
     Scheme Options are:
      "tms"    z/x/y (Default)
      "osm"    z/x/y with flipped y coordinate
-     "weogeo" z/y/x with flipped y coordinate""")
+     "weogeo" z/y/x with flipped y coordinate
+     "arcgis" z/y/x with flipped y coordinate using ArcGIS hex naming convention""")
     
     # todo - add support for compression
     #parser.add_option('-w', '--window', dest='window',
